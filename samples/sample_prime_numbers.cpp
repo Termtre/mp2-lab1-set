@@ -6,7 +6,7 @@
 // Тестирование битового поля и множества
 
 #include <iomanip>
-#include <iostream>
+
 //#define USE_SET // Использовать класс TSet,
                 // закоментировать, чтобы использовать битовое поле
 
@@ -49,9 +49,6 @@ int main()
     }
   cout << endl;
   cout << "В первых " << n << " числах " << count << " простых" << endl;
-
-  int a;
-  cin >> a;
 }
 #else
 
@@ -92,8 +89,6 @@ int main()
     }
   cout << endl;
   cout << "В первых " << n << " числах " << count << " простых" << endl;
-  int a;
-  cin >> a;
 }
 
 #endif

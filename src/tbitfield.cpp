@@ -7,34 +7,15 @@
 
 #include "tbitfield.h"
 
-#ifdef it_allowed
-const int TBitField::for_shift(int n)
-{
-	int shift = 0, temp = number_of_bits - 1;
-
-	while (temp != 0)
-	{
-		temp >>= 1;
-		shift += 1;
-	}
-
-	return shift;
-}
-#endif
-
 TBitField::TBitField(int len)
 {
 	if (len < 0)
 		throw invalid_argument("len must be positive or zero");
 
 	BitLen = len;
-
-#ifdef it_allowed
-	MemLen = (len + number_of_bits - 1) >> shift;
-#else
-	MemLen = (len / (sizeof(TELEM) * 8)) + 1;
-#endif
-
+	MemLen = len / (sizeof(TELEM) * 8);
+	if ((MemLen * sizeof(TELEM) * 8) < BitLen)
+		MemLen++;
 	pMem = new TELEM[MemLen];
 	for (int i = 0; i < MemLen; i++)
 		pMem[i] = (TELEM)0;
@@ -56,20 +37,12 @@ TBitField::~TBitField()
 
 int TBitField::GetMemIndex(const int n) const // индекс Мем для бита n
 {
-#ifdef it_allowed
-	return n >> shift;
-#else
 	return n / (sizeof(TELEM) * 8);
-#endif
 }
 
 TELEM TBitField::GetMemMask(const int n) const // битовая маска для бита n
 {
-#ifdef it_allowed
-	return 1 << (n & (number_of_bits - 1));
-#else
-	return 1 << (n & (sizeof(TELEM) * 8) - 1);
-#endif
+	return 1 << (n & ((sizeof(TELEM) * 8) - 1));
 }
 
 // доступ к битам битового поля
@@ -160,22 +133,24 @@ TBitField TBitField::operator|(const TBitField &bf) // операция "или"
 
 TBitField TBitField::operator&(const TBitField &bf) // операция "и"
 {
+	int i;
 	TBitField temp(1);
-	int size;
-	if (this->BitLen > bf.BitLen)
+	if (this->BitLen >= bf.BitLen)
 	{
 		temp = *this;
-		size = bf.MemLen;
+		for (i = 0; i < bf.MemLen; i++)
+			temp.pMem[i] &= bf.pMem[i];
 	}
 
 	else
 	{
 		temp = bf;
-		size = this->MemLen;
+		for (i = 0; i < this->MemLen; i++)
+			temp.pMem[i] &= this->pMem[i];
 	}
 
-	for (int i = 0; i < size; i++)
-		temp.pMem[i] = this->pMem[i] & bf.pMem[i];
+	for (i; i < temp.MemLen; i++)
+		temp.ClrBit(i);
 
 	return temp;
 }
@@ -199,7 +174,6 @@ istream &operator>>(istream &istr, TBitField &bf) // ввод
 	int temp;
 	for (int i = size - 1; i > -1; i--)
 	{
-		cout << "Enter " << size - i << " bit: ";
 		istr >> temp;
 
 		if ((temp != 0) && (temp != 1))
@@ -215,13 +189,10 @@ ostream &operator<<(ostream &ostr, const TBitField &bf) // вывод
 {
 	for (int i = 0; i < bf.GetLength(); i++)
 	{
-		//if (bf.GetBit(i))
-		//	ostr << 1 << " ";
-		//else
-		//	ostr << 0 << " ";
-		if (!bf.GetBit(i))
-			ostr << i << " ";
+		if (bf.GetBit(i))
+			ostr << 1 << " ";
+		else
+			ostr << 0 << " ";
 	}
-
 	return ostr;
 }

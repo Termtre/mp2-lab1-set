@@ -25,14 +25,6 @@ private:
   int   GetMemIndex(const int n) const; // индекс в pМем для бита n       (#О2)
   TELEM GetMemMask (const int n) const; // битовая маска для бита n       (#О3)
 
-//#define it_allowed // Другое решение 
-
-#ifdef it_allowed
-  const int number_of_bits = sizeof(TELEM) * 8;
-  const int for_shift(int n);
-  const int shift = for_shift(number_of_bits - 1);
-#endif
-
 public:
   TBitField(int len);                //                                   (#О1)
   TBitField(const TBitField &bf);    //                                   (#П1)

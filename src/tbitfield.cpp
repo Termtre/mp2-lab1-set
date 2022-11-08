@@ -73,7 +73,10 @@ int TBitField::GetBit(const int n) const // получить значение б
 	if ((n >= BitLen) || (n < 0))
 		throw out_of_range("n can't be greater or equal than BitLen or less than zero");
 
-	return pMem[GetMemIndex(n)] & GetMemMask(n);
+	if (pMem[GetMemIndex(n)] & GetMemMask(n))
+		return 1;
+
+	return 0;
 }
 
 // битовые операции
@@ -113,7 +116,7 @@ TBitField TBitField::operator|(const TBitField &bf) // операция "или"
 {
 	TBitField temp(1);
 	int size;
-	if (this->BitLen > bf.BitLen)
+	if (this->BitLen >= bf.BitLen)
 	{
 		temp = *this;
 		size = bf.MemLen;
@@ -149,9 +152,8 @@ TBitField TBitField::operator&(const TBitField &bf) // операция "и"
 			temp.pMem[i] &= this->pMem[i];
 	}
 
-	if (bf.BitLen != this->BitLen)
-		for (i; i < temp.MemLen; i++)
-			temp.ClrBit(i);
+	for (i; i < temp.MemLen; i++)
+		temp.ClrBit(i);
 
 	return temp;
 }
@@ -189,11 +191,6 @@ istream &operator>>(istream &istr, TBitField &bf) // ввод
 ostream &operator<<(ostream &ostr, const TBitField &bf) // вывод
 {
 	for (int i = 0; i < bf.GetLength(); i++)
-	{
-		if (bf.GetBit(i))
-			ostr << 1 << " ";
-		else
-			ostr << 0 << " ";
-	}
+		ostr << bf.GetBit(i) << " ";
 	return ostr;
 }

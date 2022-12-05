@@ -136,24 +136,24 @@ TBitField TBitField::operator|(const TBitField &bf) // операция "или"
 
 TBitField TBitField::operator&(const TBitField &bf) // операция "и"
 {
-	int i;
-	TBitField temp(1);
+	int maxBitLen = 0, minMemLen = 0;
+
 	if (this->BitLen >= bf.BitLen)
 	{
-		temp = *this;
-		for (i = 0; i < bf.MemLen; i++)
-			temp.pMem[i] &= bf.pMem[i];
+		maxBitLen = this->BitLen;
+		minMemLen = bf.MemLen;
 	}
 
 	else
 	{
-		temp = bf;
-		for (i = 0; i < this->MemLen; i++)
-			temp.pMem[i] &= this->pMem[i];
+		maxBitLen = bf.BitLen;
+		minMemLen = this->MemLen;
 	}
 
-	for (i; i < temp.MemLen; i++)
-		temp.ClrBit(i);
+	TBitField temp(maxBitLen);
+
+	for (int i = 0; i < minMemLen; i++)
+		temp.pMem[i] = this->pMem[i] & bf.pMem[i];
 
 	return temp;
 }
